@@ -27,7 +27,6 @@ class Conta {
 int cadastro(Conta clintes[], int& quantidadeContas) {
     int inputContaAtiva;
 
-    cout << string(6, '*') << " Cadastro de conta " << string(6, '*') << endl;
     cout << "Digite o nome: ";
     getline(cin, clintes[quantidadeContas].nomeCliente);
     
@@ -81,6 +80,15 @@ int cadastro(Conta clintes[], int& quantidadeContas) {
     return 0;
 }
 
+int consultaNumeroConta(Conta clintes[], int quantidadeContas, int numeroConta) {
+    for (int i = 0; i < quantidadeContas; i++) {
+        if (clintes[i].numeroConta == numeroConta) {
+            return i; // Retorna o índice da conta encontrada
+        }
+    }
+    return -1;
+}
+
 int main()
 {
     // Declaração de variáveis
@@ -112,7 +120,31 @@ int main()
         switch (opcao)
         {
         case 1:
+            cout << string(6, '*') << " Cadastro de conta " << string(6, '*') << endl;
             cadastro(clintes, quantidadeContas);
+            cout << endl;
+            break;
+        case 2:
+            cout << string(6, '*') << " Listagem de contas " << string(6, '*') << endl;
+            for (int i = 0; i < quantidadeContas; i++) {
+                cout << string(6, '-') << " Conta " << i + 1 << string(6, '-') << endl;
+                cout << clintes[i] << endl;
+            }
+            cout << endl;
+            break;
+        case 3:
+            cout << string(6, '*') << " Consultar conta por numero " << string(6, '*') << endl;
+            int numConta;
+            int index;
+            cout << "Digite o numero da conta: ";
+            cin >> numConta;
+            index = consultaNumeroConta(clintes, quantidadeContas, numConta);
+            if (index == -1) {
+                cout << "Conta não encontrada!" << endl;
+            } else {
+                cout << clintes[index] << endl;
+            }
+            cout << endl;
             break;
         default:
             cout << "Opção invalida! Por favor, escolha corretamente." << endl;
