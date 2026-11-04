@@ -144,7 +144,7 @@ void deposito(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes
     else
     {
         clintes[index].saldo += valorDeposito;
-        registrarMovimentação(clintes[index].numeroConta, valorDeposito, "D", movimentacoes, quantidadeContas);
+        registrarMovimentação(clintes[index].numeroConta, valorDeposito, "D", movimentacoes, quantidadeMovimentacoes);
         
         cout << "------- DEPÓSITO REALIZADO COM SUCESSO -------" << endl;
     }
@@ -173,7 +173,7 @@ void saque(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[],
             if (clintes[index].saldo >= valorSaque)
             {
                 clintes[index].saldo -= valorSaque;
-                registrarMovimentação(clintes[index].numeroConta, valorSaque, "S", movimentacoes, quantidadeContas);
+                registrarMovimentação(clintes[index].numeroConta, valorSaque, "S", movimentacoes, quantidadeMovimentacoes);
                 cout << "------- SAQUE REALIZADO COM SUCESSO -------" << endl;
             }
             else
@@ -263,8 +263,8 @@ void trasferencia(Conta clintes[], int& quantidadeContas, Movimentacao movimenta
             clintes[indexOrigem].saldo -= valorTransferencia;
             clintes[indexDestino].saldo += valorTransferencia;
     
-            registrarMovimentação(clintes[indexOrigem].numeroConta, valorTransferencia, "T-S", movimentacoes, quantidadeContas);
-            registrarMovimentação(clintes[indexDestino].numeroConta, valorTransferencia, "T-D", movimentacoes, quantidadeContas);
+            registrarMovimentação(clintes[indexOrigem].numeroConta, valorTransferencia, "T-S", movimentacoes, quantidadeMovimentacoes);
+            registrarMovimentação(clintes[indexDestino].numeroConta, valorTransferencia, "T-D", movimentacoes, quantidadeMovimentacoes);
     
             cout << "------- TRANSFERÊNCIA REALIZADA COM SUCESSO -------" << endl;
         }
@@ -288,6 +288,26 @@ void trasferencia(Conta clintes[], int& quantidadeContas, Movimentacao movimenta
         cout << "------- SAINDO DO MENU DE TRANSFERÊNCIAS -------" << endl;
     }
 };
+
+void exibirExtrato(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
+{
+    int index = consultaNumeroConta(clintes, quantidadeContas);
+    if (index == -1) {
+        cout << "Conta não encontrada!" << endl;
+    } else {
+        cout << "------- EXTRATO DA CONTA -------" << endl;
+        cout << clintes[index] << endl;
+        cout << "Movimentações:" << endl;
+        for (int i = 0; i < quantidadeMovimentacoes; i++) {
+            if (movimentacoes[i].numeroConta == clintes[index].numeroConta) {
+                cout << "Conta: " << movimentacoes[i].numeroConta
+                     << ", Tipo: " << movimentacoes[i].tipoMovimentacao
+                     << ", Valor: R$" << movimentacoes[i].valor
+                     << ", Data e hora: " << movimentacoes[i].dataHora << endl;
+            }
+        }
+    }
+}
 
 int main()
 {
@@ -361,6 +381,11 @@ int main()
         case 6:
             cout << string(6, '*') << " Realizar transferência " << string(6, '*') << endl;
             trasferencia(clintes, quantidadeContas, movimentacoes, quantidadeMovimentacoes);
+            cout << endl;
+            break;
+        case 7:
+            cout << string(6, '*') << " Exibir extrato " << string(6, '*') << endl;
+            exibirExtrato(clintes, quantidadeContas, movimentacoes, quantidadeMovimentacoes);
             cout << endl;
             break;
         case 8:
