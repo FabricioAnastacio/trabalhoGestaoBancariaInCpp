@@ -4,7 +4,8 @@
 
 using namespace std;
 
-class Conta {
+class Conta
+{
     public:
         string nomeCliente;
         string cpf;
@@ -14,7 +15,8 @@ class Conta {
         bool contaAtiva;
     
     public:
-        friend ostream& operator<<(ostream& os, const Conta& conta) {
+        friend ostream& operator<<(ostream& os, const Conta& conta)
+        {
             os << "Nome do cliente: " << conta.nomeCliente << endl;
             os << "CPF: " << conta.cpf << endl;
             os << "Número da conta: " << conta.numeroConta << endl;
@@ -25,7 +27,8 @@ class Conta {
         };
 };
 
-class Movimentacao {
+class Movimentacao
+{
     public:
         int numeroConta;
         string tipoMovimentacao;
@@ -33,7 +36,8 @@ class Movimentacao {
         string dataHora;
 };
 
-string getCurrentDateTime() {
+string getCurrentDateTime()
+{
     time_t now = time(0);
     int ano = 1900 + localtime(&now)->tm_year;
     int mes = 1 + localtime(&now)->tm_mon;
@@ -48,7 +52,8 @@ string getCurrentDateTime() {
     return dataHr; 
 }
 
-int cadastro(Conta clintes[], int& quantidadeContas) {
+void cadastro(Conta clintes[], int& quantidadeContas)
+{
     int inputContaAtiva;
 
     cout << "Digite o nome: ";
@@ -99,16 +104,17 @@ int cadastro(Conta clintes[], int& quantidadeContas) {
         }
     }
     
-    cout << "Conta cadastrada com sucesso!" << endl;
+    cout << "------- CONTA CADASTRADA COM SUCESSO -------" << endl;
     quantidadeContas++;
-    return 0;
 }
 
-int consultaNumeroConta(Conta clintes[], int& quantidadeContas) {
+int consultaNumeroConta(Conta clintes[], int& quantidadeContas)
+{
     int numeroConta;
     cout << "Digite o numero da conta: ";
     cin >> numeroConta;
-    for (int i = 0; i < quantidadeContas; i++) {
+    for (int i = 0; i < quantidadeContas; i++)
+    {
         if (clintes[i].numeroConta == numeroConta) {
             return i; // Retorna o índice da conta encontrada
         }
@@ -116,26 +122,68 @@ int consultaNumeroConta(Conta clintes[], int& quantidadeContas) {
     return -1;
 }
 
-int deposito(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[], int& quantidadeMovimentacoes) {
+void deposito(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
+{
     double valorDeposito;
     cout << "Digite o valor do depósito: ";
     cin >> valorDeposito;
     int index = consultaNumeroConta(clintes, quantidadeContas);
-    if (index == -1) {
+    if (index == -1)
+    {
         cout << "Conta não encontrada!" << endl;
-        return -1;
+    }
+    else
+    {
+        clintes[index].saldo += valorDeposito;
+        movimentacoes[quantidadeMovimentacoes].numeroConta = clintes[index].numeroConta;
+        movimentacoes[quantidadeMovimentacoes].tipoMovimentacao = "D";
+        movimentacoes[quantidadeMovimentacoes].valor = valorDeposito;
+        movimentacoes[quantidadeMovimentacoes].dataHora = getCurrentDateTime();
+        quantidadeMovimentacoes++;
+        
+        cout << "------- DEPÓSITO REALIZADO COM SUCESSO -------" << endl;
     }
 
-    clintes[index].saldo += valorDeposito;
-    movimentacoes[quantidadeMovimentacoes].numeroConta = clintes[index].numeroConta;
-    movimentacoes[quantidadeMovimentacoes].tipoMovimentacao = "D";
-    movimentacoes[quantidadeMovimentacoes].valor = valorDeposito;
-    movimentacoes[quantidadeMovimentacoes].dataHora = getCurrentDateTime();
-    quantidadeMovimentacoes++;
-    
-    cout << "Depósito realizado com sucesso!" << endl;
-    return 0;
 }
+
+void saque(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
+{
+    bool continuar = true;
+    int index;
+    double valorSaque;
+
+    index = consultaNumeroConta(clintes, quantidadeContas);
+    if (index == -1) 
+    {
+        cout << "Conta não encontrada!" << endl;
+    }
+    else
+    {
+        while (continuar)
+        {
+            cout << "Saldo atual: " << clintes[index].saldo << endl;
+            cout << "Qual valor deseja retirar? ";
+            cin >> valorSaque;
+
+            if (clintes[index].saldo >= valorSaque)
+            {
+                clintes[index].saldo -= valorSaque;
+                cout << "------- SAQUE REALIZADO COM SUCESSO -------" << endl;
+            }
+            else
+            {
+                cout << "Valor informado superior ao saldo da conta" << endl;
+            }
+
+            string resposta;
+            cout << "Fazer novo saque? (s ou n) ";
+            cin >> resposta;
+            continuar = resposta == "s" || resposta == "S";
+            cout << endl;
+        }
+    }
+    
+};
 
 int main()
 {
@@ -201,12 +249,21 @@ int main()
             deposito(clintes, quantidadeContas, movimentacoes, quantidadeMovimentacoes);
             cout << endl;
             break;
+        case 5:
+            cout << string(6, '*') << " Realizar saque " << string(6, '*') << endl;
+            saque(clintes, quantidadeContas, movimentacoes, quantidadeMovimentacoes);
+            cout << endl;
+            break;
+        case 8:
+            cout << "------- SAINDO DO PROGRAMA -------" << endl;
+            break;
         default:
             cout << "Opção invalida! Por favor, escolha corretamente." << endl;
             break;
         }
     } while (opcao != 8);
 
-    cout << quantidadeContas << " conta(s) cadastrada(s):" << endl;
+    cout << "------- " << quantidadeContas << " conta(s) cadastrada(s): -------" << endl;
+    cout << "------- " << quantidadeMovimentacoes << " movimentação(ões) registrada(s): -------" << endl;
     return 0;
 };
