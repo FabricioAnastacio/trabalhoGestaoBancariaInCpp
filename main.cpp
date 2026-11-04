@@ -52,6 +52,15 @@ string getCurrentDateTime()
     return dataHr; 
 }
 
+void registrarMovimentação(int numeroConta, double valor, string tipo, Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
+{
+    movimentacoes[quantidadeMovimentacoes].numeroConta = numeroConta;
+    movimentacoes[quantidadeMovimentacoes].tipoMovimentacao = tipo;
+    movimentacoes[quantidadeMovimentacoes].valor = valor;
+    movimentacoes[quantidadeMovimentacoes].dataHora = getCurrentDateTime();
+    quantidadeMovimentacoes++;
+};
+
 void cadastro(Conta clintes[], int& quantidadeContas)
 {
     int inputContaAtiva;
@@ -135,11 +144,7 @@ void deposito(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes
     else
     {
         clintes[index].saldo += valorDeposito;
-        movimentacoes[quantidadeMovimentacoes].numeroConta = clintes[index].numeroConta;
-        movimentacoes[quantidadeMovimentacoes].tipoMovimentacao = "D";
-        movimentacoes[quantidadeMovimentacoes].valor = valorDeposito;
-        movimentacoes[quantidadeMovimentacoes].dataHora = getCurrentDateTime();
-        quantidadeMovimentacoes++;
+        registrarMovimentação(clintes[index].numeroConta, valorDeposito, "D", movimentacoes, quantidadeContas);
         
         cout << "------- DEPÓSITO REALIZADO COM SUCESSO -------" << endl;
     }
@@ -168,6 +173,7 @@ void saque(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[],
             if (clintes[index].saldo >= valorSaque)
             {
                 clintes[index].saldo -= valorSaque;
+                registrarMovimentação(clintes[index].numeroConta, valorSaque, "S", movimentacoes, quantidadeContas);
                 cout << "------- SAQUE REALIZADO COM SUCESSO -------" << endl;
             }
             else
@@ -183,6 +189,104 @@ void saque(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[],
         }
     }
     
+};
+
+void trasferencia(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
+{
+    double valorTransferencia;
+    bool continuar = true;
+    int indexOrigem, indexDestino;
+    string resposta = "s";
+
+    while (continuar)
+    {
+        cout << "Conta de origem ";
+        indexOrigem = consultaNumeroConta(clintes, quantidadeContas);
+
+        if (indexOrigem == -1) {
+            cout << "Conta de origem não encontrada!" << endl;
+            cout << "Deseja tentar novamente? (s ou n) ";
+            cin >> resposta; 
+            continuar = resposta == "s" || resposta == "S";
+        }
+        else if (!clintes[indexOrigem].contaAtiva) {
+            cout << "Conta de origem está inativa!" << endl;
+            cout << "Deseja tentar outra conta? (s ou n) ";
+            cin >> resposta;
+            continuar = resposta == "s" || resposta == "S";
+        }
+        else
+        {
+            continuar = false;
+        }
+    }
+
+    continuar = resposta == "s" || resposta == "S";
+    while (continuar)
+    {
+        cout << "Conta de destino ";
+        indexDestino = consultaNumeroConta(clintes, quantidadeContas);
+
+        if (indexDestino == indexOrigem) {
+            cout << "Conta de destino não pode ser a mesma que a conta de origem!" << endl;
+        }
+        else if (indexDestino == -1) {
+            cout << "Conta de destino não encontrada!" << endl;
+            cout << "Deseja tentar novamente? (s ou n) ";
+            cin >> resposta;
+            continuar = resposta == "s" || resposta == "S";
+        }
+        else if (!clintes[indexDestino].contaAtiva) {
+            cout << "Conta de destino está inativa!" << endl;
+            cout << "Deseja tentar outra conta? (s ou n) ";
+            cin >> resposta;
+            continuar = resposta == "s" || resposta == "S";
+        }
+        else
+        {
+            continuar = false;
+        }
+    }
+
+    continuar = resposta == "s" || resposta == "S";
+    while (continuar)
+    {
+        cout << "Qual valor deseja transferir? ";
+        cin >> valorTransferencia;
+    
+        if (valorTransferencia <= 0)
+        {
+            cout << "Valor inválido!" << endl;
+        }
+        else if (clintes[indexOrigem].saldo >= valorTransferencia)
+        {
+            clintes[indexOrigem].saldo -= valorTransferencia;
+            clintes[indexDestino].saldo += valorTransferencia;
+    
+            registrarMovimentação(clintes[indexOrigem].numeroConta, valorTransferencia, "T-S", movimentacoes, quantidadeContas);
+            registrarMovimentação(clintes[indexDestino].numeroConta, valorTransferencia, "T-D", movimentacoes, quantidadeContas);
+    
+            cout << "------- TRANSFERÊNCIA REALIZADA COM SUCESSO -------" << endl;
+        }
+        else
+        {
+            cout << "Valor informado superior ao saldo da conta de origem" << endl;
+        }
+
+        cout << "Deseja tentar outro valor? (s ou n) ";
+        cin >> resposta;
+        continuar = resposta == "s" || resposta == "S";
+        cout << endl;
+    }
+    
+    cout << "Deseja tentar outra transferencia? (s ou n) ";
+    cin >> resposta;
+    continuar = resposta == "s" || resposta == "S";
+    cout << endl;
+
+    if (resposta != "s" && resposta != "S") {
+        cout << "------- SAINDO DO MENU DE TRANSFERÊNCIAS -------" << endl;
+    }
 };
 
 int main()
@@ -254,8 +358,36 @@ int main()
             saque(clintes, quantidadeContas, movimentacoes, quantidadeMovimentacoes);
             cout << endl;
             break;
+        case 6:
+            cout << string(6, '*') << " Realizar transferência " << string(6, '*') << endl;
+            trasferencia(clintes, quantidadeContas, movimentacoes, quantidadeMovimentacoes);
+            cout << endl;
+            break;
         case 8:
             cout << "------- SAINDO DO PROGRAMA -------" << endl;
+            break;
+        case 9:
+            cout << string(6, '*') << " Ambiente de testes " << string(6, '*') << endl;
+            cout << "Data e hora atual: " << getCurrentDateTime() << endl;
+            clintes[0].nomeCliente = "Fabricio";
+            clintes[0].cpf = "123.456.789-00";
+            clintes[0].numeroConta = 12345;
+            clintes[0].tipoConta = 1;
+            clintes[0].saldo = 1000.00;
+            clintes[0].contaAtiva = true;
+            quantidadeContas++;
+            cout << "------- 1° Conta de teste cadastrada -------" << endl;
+            cout << clintes[0] << endl;
+            clintes[1].nomeCliente = "Maria";
+            clintes[1].cpf = "987.654.321-00";
+            clintes[1].numeroConta = 54321;
+            clintes[1].tipoConta = 2;
+            clintes[1].saldo = 500.00;
+            clintes[1].contaAtiva = true;
+            quantidadeContas++;
+            cout << "------- 2° Conta de teste cadastrada -------" << endl;
+            cout << clintes[1] << endl;
+            cout << endl;
             break;
         default:
             cout << "Opção invalida! Por favor, escolha corretamente." << endl;
