@@ -402,29 +402,6 @@ int main()
         case 8:
             cout << "------- SAINDO DO PROGRAMA -------" << endl;
             break;
-        case 9:
-            cout << string(6, '*') << " Ambiente de testes " << string(6, '*') << endl;
-            cout << "Data e hora atual: " << getCurrentDateTime() << endl;
-            clintes[0].nomeCliente = "Fabricio";
-            clintes[0].cpf = "123.456.789-00";
-            clintes[0].numeroConta = 12345;
-            clintes[0].tipoConta = 1;
-            clintes[0].saldo = 1000.00;
-            clintes[0].contaAtiva = true;
-            quantidadeContas++;
-            cout << "------- 1° Conta de teste cadastrada -------" << endl;
-            cout << clintes[0] << endl;
-            clintes[1].nomeCliente = "Maria";
-            clintes[1].cpf = "987.654.321-00";
-            clintes[1].numeroConta = 54321;
-            clintes[1].tipoConta = 2;
-            clintes[1].saldo = 500.00;
-            clintes[1].contaAtiva = true;
-            quantidadeContas++;
-            cout << "------- 2° Conta de teste cadastrada -------" << endl;
-            cout << clintes[1] << endl;
-            cout << endl;
-            break;
         default:
             cout << "Opção invalida! Por favor, escolha corretamente." << endl;
             break;
