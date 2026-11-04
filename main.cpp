@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <ctime>
 
 using namespace std;
 
@@ -21,8 +22,31 @@ class Conta {
             os << "Saldo: R$" << conta.saldo << endl;
             os << "Conta ativa: " << (conta.contaAtiva ? "Sim" : "Não") << endl;
             return os;
-        }
+        };
 };
+
+class Movimentacao {
+    public:
+        int numeroConta;
+        string tipoMovimentacao;
+        double valor;
+        string dataHora;
+};
+
+string getCurrentDateTime() {
+    time_t now = time(0);
+    int ano = 1900 + localtime(&now)->tm_year;
+    int mes = 1 + localtime(&now)->tm_mon;
+    int dia = localtime(&now)->tm_mday;
+    int hora = localtime(&now)->tm_hour;
+    int minuto = localtime(&now)->tm_min;
+    int segundo = localtime(&now)->tm_sec;
+    
+    string dataHr = to_string(dia) + "/" + to_string(mes) + "/" + to_string(ano)
+        + " " + to_string(hora) + ":" + to_string(minuto) + ":" + to_string(segundo);
+
+    return dataHr; 
+}
 
 int cadastro(Conta clintes[], int& quantidadeContas) {
     int inputContaAtiva;
@@ -80,7 +104,10 @@ int cadastro(Conta clintes[], int& quantidadeContas) {
     return 0;
 }
 
-int consultaNumeroConta(Conta clintes[], int quantidadeContas, int numeroConta) {
+int consultaNumeroConta(Conta clintes[], int& quantidadeContas) {
+    int numeroConta;
+    cout << "Digite o numero da conta: ";
+    cin >> numeroConta;
     for (int i = 0; i < quantidadeContas; i++) {
         if (clintes[i].numeroConta == numeroConta) {
             return i; // Retorna o índice da conta encontrada
@@ -89,19 +116,45 @@ int consultaNumeroConta(Conta clintes[], int quantidadeContas, int numeroConta) 
     return -1;
 }
 
+int deposito(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[], int& quantidadeMovimentacoes) {
+    double valorDeposito;
+    cout << "Digite o valor do depósito: ";
+    cin >> valorDeposito;
+    int index = consultaNumeroConta(clintes, quantidadeContas);
+    if (index == -1) {
+        cout << "Conta não encontrada!" << endl;
+        return -1;
+    }
+
+    clintes[index].saldo += valorDeposito;
+    movimentacoes[quantidadeMovimentacoes].numeroConta = clintes[index].numeroConta;
+    movimentacoes[quantidadeMovimentacoes].tipoMovimentacao = "D";
+    movimentacoes[quantidadeMovimentacoes].valor = valorDeposito;
+    movimentacoes[quantidadeMovimentacoes].dataHora = getCurrentDateTime();
+    quantidadeMovimentacoes++;
+    
+    cout << "Depósito realizado com sucesso!" << endl;
+    return 0;
+}
+
 int main()
 {
-    // Declaração de variáveis
+    // Declaração de variáveis principais
     const int MAX_CONTAS = 100;
+    const int MAX_MOVIMENTACOES = 500;
+
     Conta clintes[MAX_CONTAS];
     int quantidadeContas = 0;
+    Movimentacao movimentacoes[MAX_MOVIMENTACOES];
+    int quantidadeMovimentacoes = 0;
+    
     int opcao;
 
     // Titulo do programa
     cout << string(32, '*') << endl;
     cout << "*" << string(8, ' ') << "BANCOMASTER3.0" << string(8, ' ') << "*" << endl;
     cout << string(32, '*') << endl;
-
+    
     do {
         cout << "Por favor, selecione uma das opções abaixo" << endl;
         cout << "1 - Cadastrar conta" << endl;
@@ -134,16 +187,18 @@ int main()
             break;
         case 3:
             cout << string(6, '*') << " Consultar conta por numero " << string(6, '*') << endl;
-            int numConta;
             int index;
-            cout << "Digite o numero da conta: ";
-            cin >> numConta;
-            index = consultaNumeroConta(clintes, quantidadeContas, numConta);
+            index = consultaNumeroConta(clintes, quantidadeContas);
             if (index == -1) {
                 cout << "Conta não encontrada!" << endl;
             } else {
                 cout << clintes[index] << endl;
             }
+            cout << endl;
+            break;
+        case 4:
+            cout << string(6, '*') << " Realizar depósito " << string(6, '*') << endl;
+            deposito(clintes, quantidadeContas, movimentacoes, quantidadeMovimentacoes);
             cout << endl;
             break;
         default:
