@@ -59,6 +59,7 @@ void registrarMovimentação(int numeroConta, double valor, string tipo, Movimen
     movimentacoes[quantidadeMovimentacoes].valor = valor;
     movimentacoes[quantidadeMovimentacoes].dataHora = getCurrentDateTime();
     quantidadeMovimentacoes++;
+    cout << "*MOVIMENTAÇÃO REGISTRADA*" << endl;
 };
 
 void cadastro(Conta clintes[], int& quantidadeContas)
