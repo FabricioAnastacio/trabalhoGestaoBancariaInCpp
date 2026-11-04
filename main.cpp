@@ -301,8 +301,18 @@ void exibirExtrato(Conta clintes[], int& quantidadeContas, Movimentacao moviment
         cout << "Movimentações:" << endl;
         for (int i = 0; i < quantidadeMovimentacoes; i++) {
             if (movimentacoes[i].numeroConta == clintes[index].numeroConta) {
+                string tipoMovimentacao;
+                if (movimentacoes[i].tipoMovimentacao == "D") {
+                    tipoMovimentacao = "Depósito";
+                } else if (movimentacoes[i].tipoMovimentacao == "S") {
+                    tipoMovimentacao = "Saque";
+                } else if (movimentacoes[i].tipoMovimentacao == "T-S") {
+                    tipoMovimentacao = "Transferência Saída";
+                } else if (movimentacoes[i].tipoMovimentacao == "T-D") {
+                    tipoMovimentacao = "Transferência Entrada";
+                }
                 cout << "Conta: " << movimentacoes[i].numeroConta
-                     << ", Tipo: " << movimentacoes[i].tipoMovimentacao
+                     << ", Tipo: " << tipoMovimentacao
                      << ", Valor: R$" << movimentacoes[i].valor
                      << ", Data e hora: " << movimentacoes[i].dataHora << endl;
             }
