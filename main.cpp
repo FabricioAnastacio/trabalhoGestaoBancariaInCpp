@@ -4,6 +4,7 @@
 
 using namespace std;
 
+// Estrutura de dados para armazenar informações da conta
 class Conta
 {
     public:
@@ -27,6 +28,7 @@ class Conta
         };
 };
 
+// Estrutura de dados para armazenar informações da movimentação
 class Movimentacao
 {
     public:
@@ -36,6 +38,7 @@ class Movimentacao
         string dataHora;
 };
 
+// Função para obter a data e hora atual formatada
 string getCurrentDateTime()
 {
     time_t now = time(0);
@@ -49,9 +52,10 @@ string getCurrentDateTime()
     string dataHr = to_string(dia) + "/" + to_string(mes) + "/" + to_string(ano)
         + " " + to_string(hora) + ":" + to_string(minuto) + ":" + to_string(segundo);
 
-    return dataHr; 
+    return dataHr; // Retorna a data e hora atual formatada como string formato "dd/mm/yyyy hh:mm:ss"
 }
 
+// Função para registrar uma movimentação
 void registrarMovimentação(int numeroConta, double valor, string tipo, Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
 {
     movimentacoes[quantidadeMovimentacoes].numeroConta = numeroConta;
@@ -62,76 +66,191 @@ void registrarMovimentação(int numeroConta, double valor, string tipo, Movimen
     cout << "*MOVIMENTAÇÃO REGISTRADA*" << endl;
 };
 
-void cadastro(Conta clintes[], int& quantidadeContas)
+// Função para validar e obter o CPF do usuário
+string getCpf(string cpf)
 {
-    int inputContaAtiva;
-
-    cout << "Digite o nome: ";
-    getline(cin, clintes[quantidadeContas].nomeCliente);
-    
-    cout << "Digite o CPF: ";
-    getline(cin, clintes[quantidadeContas].cpf);
-
-    while (clintes[quantidadeContas].numeroConta <= 0)
+    while (cpf.length() != 14)
     {
-        cout << "Digite o número da conta: ";
-        cin >> clintes[quantidadeContas].numeroConta;
-        if (clintes[quantidadeContas].numeroConta <= 0)
+        cout << "Digite o CPF (No formato 123.456.789-00): ";
+        getline(cin, cpf);
+        if (cpf.length() != 14)
         {
-            cout << "Número de conta inválido. Por favor, digite um número maior que zero." << endl;
+            cout << "CPF inválido. Por favor, o cpf deve possuir 14 digitos (123.456.789-00)." << endl;
+            cpf = "";
+        }
+        for (int i = 0; i < cpf.length(); i++) {
+            if (!isdigit(cpf[i]) && cpf[i] != '.' && cpf[i] != '-') {
+                cout << "CPF inválido. Por favor, digite apenas números e os caracteres '.' e '-'." << endl;
+                cpf = "";
+                break;
+            }
+            else if (i == 3 || i == 7) {
+                if (cpf[i] != '.') {
+                    cout << "CPF inválido. Por favor, digite no formato correto (123.456.789-00)." << endl;
+                    cpf = "";
+                    break;
+                }
+            }
+            else if (i == 11) {
+                if (cpf[i] != '-') {
+                    cout << "CPF inválido. Por favor, digite no formato correto (123.456.789-00)." << endl;
+                    cpf = "";
+                    break;
+                }
+            }
         }
     }
+    return cpf;
+}
 
-    while (clintes[quantidadeContas].tipoConta != 1 && clintes[quantidadeContas].tipoConta != 2)
+// Função para validar e obter o número da conta do usuário
+int getNumeroConta(Conta clintes[], int& quantidadeContas)
+{
+    string numeroConta = "0";
+    while (numeroConta.length() != 5)
     {
-        cout << "Digite o tipo da conta\n 1 para Corrente\n 2 para Poupança\nOpção: ";
-        cin >> clintes[quantidadeContas].tipoConta;
-        if (clintes[quantidadeContas].tipoConta != 1 && clintes[quantidadeContas].tipoConta != 2)
+        cout << "Digite o número da conta (Deve possuir 5 numeros): ";
+        getline(cin, numeroConta);
+        for (char c : numeroConta) {
+            if (!isdigit(c)) {
+                cout << "Número de conta inválido. Por favor, digite apenas números." << endl;
+                numeroConta = "0";
+                break;
+            }
+        }
+        if (numeroConta.length() != 5)
         {
-            cout << "Tipo de conta inválido. Por favor, digite 1 para Corrente ou 2 para Poupança." << endl;
+            cout << "Número de conta inválido. Por favor, digite um número com 5 dígitos." << endl;
+            numeroConta = "0";
+        }
+        for (int i = 0; i < quantidadeContas; i++)
+        {
+            if (clintes[i].numeroConta == stoi(numeroConta))
+            {
+                cout << "Número de conta já existente. Por favor, digite outro número." << endl;
+                numeroConta = "0";
+                break;
+            }
         }
     }
+    return stoi(numeroConta);
+}
 
-    while (clintes[quantidadeContas].saldo <= 0)
+// Função para validar e obter o tipo da conta do usuário
+int getTipoConta(Conta clintes[], int& quantidadeContas)
+{
+    string tipoContaStr = "";
+    while (tipoContaStr != "1" && tipoContaStr != "2")
     {
-        cout << "Digite o saldo: ";
-        cin >> clintes[quantidadeContas].saldo;
-        if (clintes[quantidadeContas].saldo <= 0)
+        cout << "1 para Corrente\n2 para Poupança\nDigite o tipo da conta : ";
+        cin >> tipoContaStr;
+        for (char c : tipoContaStr) {
+            if (!isdigit(c)) {
+                cout << "Caracter inválido. Por favor, digite apenas número." << endl;
+                clintes[quantidadeContas].tipoConta = 0;
+                break;
+            }
+        }
+        if (tipoContaStr != "1" && tipoContaStr != "2")
         {
-            cout << "Saldo inválido. Por favor, digite um valor maior que zero." << endl;
+            cout << "----- Tipo de conta inválido. Por favor, digite 1 para Corrente ou 2 para Poupança. -----" << endl;
+            clintes[quantidadeContas].tipoConta = 0;
         }
     }
+    return stoi(tipoContaStr);
+}
 
+// Função para validar e obter o saldo inicial da conta do usuário
+double getSaldo()
+{
+    string saldo = "0";
+    while (stod(saldo) <= 0)
+    {
+        cout << "Digite o saldo (A conta precisa ter um saldo inicial): ";
+        cin >> saldo;
+        for (char c : saldo) {
+            if (!isdigit(c) && c != '.') {
+                cout << "Caracter inválido. Por favor, digite apenas número." << endl;
+                saldo = "0";
+                break;
+            }
+        }
+        if (stod(saldo) <= 0)
+        {
+            cout << "----- Saldo inválido. Por favor, digite um valor maior que zero. -----" << endl;
+            saldo = "0";
+        }
+    }
+    return stod(saldo);
+}
+
+// Função para validar e obter se a conta está ativa ou não
+bool getContaAtiva()
+{
+    string inputContaAtiva;
     while (true)
     {
         cout << "Digite se a conta está ativa (1 para sim, 0 para não): ";
         cin >> inputContaAtiva;
-        if (inputContaAtiva == 1 || inputContaAtiva == 0) {
-            clintes[quantidadeContas].contaAtiva = inputContaAtiva == 1 ? true : false;
-            break;
+        for (char c : inputContaAtiva) {
+            if (!isdigit(c)) {
+                cout << "----- Caracter inválido. Por favor, digite apenas número. -----" << endl;
+                inputContaAtiva = "2"; // Valor inválido para forçar a repetição do loop
+                break;
+            }
+        }
+        if (inputContaAtiva == "1" || inputContaAtiva == "0") {
+            cout << "----- " << (inputContaAtiva == "1" ? "Conta ativa." : "Conta inativa.") << " -----" << endl;
+            return inputContaAtiva == "1" ? true : false;
         } else {
             cout << "Entrada inválida." << endl;
         }
     }
+}
+
+// Função para cadastrar uma nova conta
+void cadastro(Conta clintes[], int& quantidadeContas)
+{
+    string cpf = "";
+
+    cout << "Digite o nome: ";
+    getline(cin, clintes[quantidadeContas].nomeCliente);
+    clintes[quantidadeContas].cpf = getCpf(cpf);
+    clintes[quantidadeContas].numeroConta = getNumeroConta(clintes, quantidadeContas);
+    clintes[quantidadeContas].tipoConta = getTipoConta(clintes, quantidadeContas);
+    clintes[quantidadeContas].saldo = getSaldo();
+    clintes[quantidadeContas].contaAtiva = getContaAtiva();
     
     cout << "------- CONTA CADASTRADA COM SUCESSO -------" << endl;
     quantidadeContas++;
 }
 
+// Função para consultar uma conta pelo número
 int consultaNumeroConta(Conta clintes[], int& quantidadeContas)
 {
-    int numeroConta;
-    cout << "Digite o numero da conta: ";
-    cin >> numeroConta;
+    string numeroConta = "0";
+    while (stoi(numeroConta) <= 0)
+    {
+        cout << "Digite o numero da conta: ";
+        cin >> numeroConta;
+        for (char c : numeroConta) {
+            if (!isdigit(c)) {
+                cout << "Número de conta inválido. Por favor, digite apenas números maior que 0." << endl;
+                numeroConta = "0";
+                break;
+            }
+        }
+    }
     for (int i = 0; i < quantidadeContas; i++)
     {
-        if (clintes[i].numeroConta == numeroConta) {
+        if (clintes[i].numeroConta == stoi(numeroConta)) {
             return i; // Retorna o índice da conta encontrada
         }
     }
     return -1;
 }
 
+// Função para realizar um depósito
 void deposito(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
 {
     double valorDeposito;
@@ -140,7 +259,7 @@ void deposito(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes
     int index = consultaNumeroConta(clintes, quantidadeContas);
     if (index == -1)
     {
-        cout << "Conta não encontrada!" << endl;
+        cout << "----- Conta não encontrada! -----" << endl;
     }
     else
     {
@@ -152,6 +271,7 @@ void deposito(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes
 
 }
 
+// Função para realizar um saque
 void saque(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
 {
     bool continuar = true;
@@ -161,7 +281,7 @@ void saque(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[],
     index = consultaNumeroConta(clintes, quantidadeContas);
     if (index == -1) 
     {
-        cout << "Conta não encontrada!" << endl;
+        cout << "----- Conta não encontrada! -----" << endl;
     }
     else
     {
@@ -179,7 +299,7 @@ void saque(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[],
             }
             else
             {
-                cout << "Valor informado superior ao saldo da conta" << endl;
+                cout << "----- Valor informado superior ao saldo da conta -----" << endl;
             }
 
             string resposta;
@@ -192,7 +312,8 @@ void saque(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[],
     
 };
 
-void trasferencia(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
+// Função para realizar uma transferência entre duas contas
+void transferencia(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
 {
     double valorTransferencia;
     bool continuar = true;
@@ -205,13 +326,13 @@ void trasferencia(Conta clintes[], int& quantidadeContas, Movimentacao movimenta
         indexOrigem = consultaNumeroConta(clintes, quantidadeContas);
 
         if (indexOrigem == -1) {
-            cout << "Conta de origem não encontrada!" << endl;
+            cout << "----- Conta de origem não encontrada! -----" << endl;
             cout << "Deseja tentar novamente? (s ou n) ";
             cin >> resposta; 
             continuar = resposta == "s" || resposta == "S";
         }
         else if (!clintes[indexOrigem].contaAtiva) {
-            cout << "Conta de origem está inativa!" << endl;
+            cout << "----- Conta de origem está inativa! -----" << endl;
             cout << "Deseja tentar outra conta? (s ou n) ";
             cin >> resposta;
             continuar = resposta == "s" || resposta == "S";
@@ -229,16 +350,16 @@ void trasferencia(Conta clintes[], int& quantidadeContas, Movimentacao movimenta
         indexDestino = consultaNumeroConta(clintes, quantidadeContas);
 
         if (indexDestino == indexOrigem) {
-            cout << "Conta de destino não pode ser a mesma que a conta de origem!" << endl;
+            cout << "----- Conta de destino não pode ser a mesma que a conta de origem! -----" << endl;
         }
         else if (indexDestino == -1) {
-            cout << "Conta de destino não encontrada!" << endl;
+            cout << "----- Conta de destino não encontrada! -----" << endl;
             cout << "Deseja tentar novamente? (s ou n) ";
             cin >> resposta;
             continuar = resposta == "s" || resposta == "S";
         }
         else if (!clintes[indexDestino].contaAtiva) {
-            cout << "Conta de destino está inativa!" << endl;
+            cout << "----- Conta de destino está inativa! -----" << endl;
             cout << "Deseja tentar outra conta? (s ou n) ";
             cin >> resposta;
             continuar = resposta == "s" || resposta == "S";
@@ -271,7 +392,7 @@ void trasferencia(Conta clintes[], int& quantidadeContas, Movimentacao movimenta
         }
         else
         {
-            cout << "Valor informado superior ao saldo da conta de origem" << endl;
+            cout << "----- Valor informado superior ao saldo da conta de origem -----" << endl;
         }
 
         cout << "Deseja tentar outro valor? (s ou n) ";
@@ -290,11 +411,12 @@ void trasferencia(Conta clintes[], int& quantidadeContas, Movimentacao movimenta
     }
 };
 
+// Função para exibir o extrato de uma conta
 void exibirExtrato(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
 {
     int index = consultaNumeroConta(clintes, quantidadeContas);
     if (index == -1) {
-        cout << "Conta não encontrada!" << endl;
+        cout << "----- Conta não encontrada! -----" << endl;
     } else {
         cout << "------- EXTRATO DA CONTA -------" << endl;
         cout << clintes[index] << endl;
@@ -331,7 +453,7 @@ int main()
     Movimentacao movimentacoes[MAX_MOVIMENTACOES];
     int quantidadeMovimentacoes = 0;
     
-    int opcao;
+    char opcao = '0';
 
     // Titulo do programa
     cout << string(32, '*') << endl;
@@ -339,6 +461,7 @@ int main()
     cout << string(32, '*') << endl;
     
     do {
+        // Menu de opções
         cout << "Por favor, selecione uma das opções abaixo" << endl;
         cout << "1 - Cadastrar conta" << endl;
         cout << "2 - Listar as contas cadastradas" << endl; 
@@ -355,12 +478,14 @@ int main()
 
         switch (opcao)
         {
-        case 1:
+        case '1':
+            // Cadastrar conta
             cout << string(6, '*') << " Cadastro de conta " << string(6, '*') << endl;
             cadastro(clintes, quantidadeContas);
             cout << endl;
             break;
-        case 2:
+        case '2':
+            // Listar contas cadastradas
             cout << string(6, '*') << " Listagem de contas " << string(6, '*') << endl;
             for (int i = 0; i < quantidadeContas; i++) {
                 cout << string(6, '-') << " Conta " << i + 1 << string(6, '-') << endl;
@@ -368,45 +493,51 @@ int main()
             }
             cout << endl;
             break;
-        case 3:
+        case '3':
+            // Consultar conta pelo número
             cout << string(6, '*') << " Consultar conta por numero " << string(6, '*') << endl;
             int index;
             index = consultaNumeroConta(clintes, quantidadeContas);
             if (index == -1) {
-                cout << "Conta não encontrada!" << endl;
+                cout << "----- Conta não encontrada! -----" << endl;
             } else {
                 cout << clintes[index] << endl;
             }
             cout << endl;
             break;
-        case 4:
+        case '4':
+            // Realizar depósito
             cout << string(6, '*') << " Realizar depósito " << string(6, '*') << endl;
             deposito(clintes, quantidadeContas, movimentacoes, quantidadeMovimentacoes);
             cout << endl;
             break;
-        case 5:
+        case '5':
+            // Realizar saque
             cout << string(6, '*') << " Realizar saque " << string(6, '*') << endl;
             saque(clintes, quantidadeContas, movimentacoes, quantidadeMovimentacoes);
             cout << endl;
             break;
-        case 6:
+        case '6':
+            // Realizar transferência
             cout << string(6, '*') << " Realizar transferência " << string(6, '*') << endl;
-            trasferencia(clintes, quantidadeContas, movimentacoes, quantidadeMovimentacoes);
+            transferencia(clintes, quantidadeContas, movimentacoes, quantidadeMovimentacoes);
             cout << endl;
             break;
-        case 7:
+        case '7':
+            // Exibir extrato
             cout << string(6, '*') << " Exibir extrato " << string(6, '*') << endl;
             exibirExtrato(clintes, quantidadeContas, movimentacoes, quantidadeMovimentacoes);
             cout << endl;
             break;
-        case 8:
+        case '8':
+            // Sair do programa
             cout << "------- SAINDO DO PROGRAMA -------" << endl;
             break;
         default:
-            cout << "Opção invalida! Por favor, escolha corretamente." << endl;
+            cout << "Opção invalida! Por favor, escolha um numero corretamente." << endl;
             break;
         }
-    } while (opcao != 8);
+    } while (opcao != '8');
 
     cout << "------- " << quantidadeContas << " conta(s) cadastrada(s): -------" << endl;
     cout << "------- " << quantidadeMovimentacoes << " movimentação(ões) registrada(s): -------" << endl;
