@@ -272,7 +272,7 @@ void deposito(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes
 }
 
 // Função para realizar um saque
-void saque(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
+void  saque(Conta clintes[], int& quantidadeContas, Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
 {
     bool continuar = true;
     int index;
@@ -481,7 +481,14 @@ int main()
         case '1':
             // Cadastrar conta
             cout << string(6, '*') << " Cadastro de conta " << string(6, '*') << endl;
-            cadastro(clintes, quantidadeContas);
+            if (quantidadeContas == 100)
+            {
+                cout << "Limite de contas atingido." << endl;
+            }
+            else
+            {
+                cadastro(clintes, quantidadeContas);
+            }
             cout << endl;
             break;
         case '2':
