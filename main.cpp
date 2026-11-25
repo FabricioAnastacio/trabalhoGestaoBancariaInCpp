@@ -620,14 +620,12 @@ int main()
         case '1':
             // Cadastrar conta
             cout << string(6, '*') << " Cadastro de conta " << string(6, '*') << endl;
-            if (quantidadeContas == 100)
+            if (quantidadeContas >= 100)
             {
                 cout << "Limite de contas atingido." << endl;
+                break;
             }
-            else
-            {
-                cadastro(clintes, quantidadeContas);
-            }
+            cadastro(clintes, quantidadeContas);
             cout << endl;
             break;
         case '2':
