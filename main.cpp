@@ -1,6 +1,9 @@
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <vector>
 #include <ctime>
+#include <fstream>
 
 using namespace std;
 
@@ -442,6 +445,135 @@ void exibirExtrato(Conta clintes[], int& quantidadeContas, Movimentacao moviment
     }
 }
 
+void salvarDadosConta(Conta clintes[], int& quantidadeContas)
+{
+    if (quantidadeContas == 0) return;
+
+    ofstream arquivo("contas.txt");
+
+    if (arquivo.is_open())
+    {
+        for (int i = 0; i < quantidadeContas; i++)
+        {
+            arquivo << clintes[i].numeroConta << ";"
+                << clintes[i].nomeCliente << ";"
+                << clintes[i].cpf << ";"
+                << clintes[i].tipoConta << ";"
+                << clintes[i].saldo << ";"
+                << clintes[i].contaAtiva << endl;
+        }
+    }
+
+    arquivo.close();
+
+    cout << "Contas salvas com sucesso!" << endl;
+}
+
+void salvarDadosMovimentacao(Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
+{
+    if (quantidadeMovimentacoes == 0) return;
+    
+    ofstream arquivo("movimentacoes.txt");
+
+    if (arquivo.is_open())
+    {
+        for (int i = 0; i < quantidadeMovimentacoes; i++)
+        {
+            arquivo << movimentacoes[i].numeroConta << ";"
+                << movimentacoes[i].tipoMovimentacao << ";"
+                << movimentacoes[i].valor << ";"
+                << movimentacoes[i].dataHora << endl;
+        }
+    }
+
+    arquivo.close();
+
+    cout << "Movimentações salvas com sucesso!" << endl;
+}
+
+
+void carregarDadosContas(Conta clintes[], int& quantidadeContas)
+{
+    ifstream arquivoContas("contas.txt");
+    
+    string linha;
+
+    if (!arquivoContas.is_open())
+    {
+        cout << "Erro ao carregar os dados salvo!" << endl;
+        return;
+    }
+
+    while (getline(arquivoContas, linha))
+    {
+        if (linha.size() == 0)
+        {
+            cout << "Não a dados para carregar" << endl;
+            break;
+        }
+
+        stringstream sslinha(linha);
+        string elemento;
+        vector<string> elementoLinha;
+
+        while (getline(sslinha, elemento, ';'))
+        {
+            elementoLinha.push_back(elemento);
+        }
+
+        clintes[quantidadeContas].numeroConta = stoi(elementoLinha[0]);
+        clintes[quantidadeContas].nomeCliente = elementoLinha[1];
+        clintes[quantidadeContas].cpf = elementoLinha[2];
+        clintes[quantidadeContas].tipoConta = stoi(elementoLinha[3]);
+        clintes[quantidadeContas].saldo = stod(elementoLinha[4]);
+        clintes[quantidadeContas].contaAtiva = !!stoi(elementoLinha[5]);
+        
+        quantidadeContas++;
+    }
+
+    arquivoContas.close();
+}
+
+void carregarDadosMovimentacao(Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
+{
+    ifstream arquivoMovimantacao("movimentacoes.txt");
+    
+    string linha;
+
+    if (!arquivoMovimantacao.is_open())
+    {
+        cout << "Erro ao carregar os dados salvo!" << endl;
+        return;
+    }  
+
+    while (getline(arquivoMovimantacao, linha))
+    {
+        if (linha.size() == 0)
+        {
+            cout << "Não a dados para carregar" << endl;
+            break;
+        }
+        
+        stringstream sslinha(linha);
+        string elemento;
+        vector<string> elementoLinha;
+
+        while (getline(sslinha, elemento, ';'))
+        {
+            elementoLinha.push_back(elemento);
+        }
+
+        movimentacoes[quantidadeMovimentacoes].numeroConta = stoi(elementoLinha[0]);
+        movimentacoes[quantidadeMovimentacoes].tipoMovimentacao = elementoLinha[1];
+        movimentacoes[quantidadeMovimentacoes].valor = stod(elementoLinha[2]);
+        movimentacoes[quantidadeMovimentacoes].dataHora = elementoLinha[3];
+        
+        quantidadeMovimentacoes++;
+    }
+
+    arquivoMovimantacao.close();
+}
+
 int main()
 {
     // Declaração de variáveis principais
@@ -454,6 +586,9 @@ int main()
     int quantidadeMovimentacoes = 0;
     
     char opcao = '0';
+
+    carregarDadosContas(clintes, quantidadeContas);
+    carregarDadosMovimentacao(movimentacoes, quantidadeMovimentacoes);
 
     // Titulo do programa
     cout << string(32, '*') << endl;
@@ -530,7 +665,9 @@ int main()
             cout << endl;
             break;
         case '8':
-            // Sair do programa
+            // Sair do programa e salvar os dados
+            salvarDadosConta(clintes, quantidadeContas);
+            salvarDadosMovimentacao(movimentacoes, quantidadeMovimentacoes);
             cout << "------- SAINDO DO PROGRAMA -------" << endl;
             break;
         default:
