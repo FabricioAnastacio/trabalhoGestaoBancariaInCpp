@@ -445,6 +445,7 @@ void exibirExtrato(Conta clintes[], int& quantidadeContas, Movimentacao moviment
     }
 }
 
+// Função para salvar as contas
 void salvarDadosConta(Conta clintes[], int& quantidadeContas)
 {
     if (quantidadeContas == 0) return;
@@ -469,6 +470,7 @@ void salvarDadosConta(Conta clintes[], int& quantidadeContas)
     cout << "Contas salvas com sucesso!" << endl;
 }
 
+// Função para salvar as movimentacoes
 void salvarDadosMovimentacao(Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
 {
     if (quantidadeMovimentacoes == 0) return;
@@ -491,7 +493,7 @@ void salvarDadosMovimentacao(Movimentacao movimentacoes[], int& quantidadeMovime
     cout << "Movimentações salvas com sucesso!" << endl;
 }
 
-
+// Função para caregar as contas
 void carregarDadosContas(Conta clintes[], int& quantidadeContas)
 {
     ifstream arquivoContas("contas.txt");
@@ -534,6 +536,7 @@ void carregarDadosContas(Conta clintes[], int& quantidadeContas)
     arquivoContas.close();
 }
 
+// Função para caregar as movimentacoes
 void carregarDadosMovimentacao(Movimentacao movimentacoes[], int& quantidadeMovimentacoes)
 {
     ifstream arquivoMovimantacao("movimentacoes.txt");
@@ -587,6 +590,7 @@ int main()
     
     char opcao = '0';
 
+    // Carrega os dados se ouver
     carregarDadosContas(clintes, quantidadeContas);
     carregarDadosMovimentacao(movimentacoes, quantidadeMovimentacoes);
 
